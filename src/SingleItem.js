@@ -1,14 +1,33 @@
 /** @format */
 
-
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import customFetch from "./utils";
 
 const SingleItem = ({ item }) => {
+
+ const queryClient = useQueryClient()
+  const { mutate: editTask } = useMutation({
+    mutateFn: ({ taskId, isDone }) => {
+      return customFetch.patch(`/${taskId}`, {isDone})
+    },
+    onSuccess: () => {
+  queryClient.invalidateQueries({queryKey:["tasks"]})
+}
+  })
+  const { mutate: deleteTask ,isLoading} = useMutation({
+    mutateFn: ( taskId ) => {
+      return customFetch.delete(`/${taskId}`,)
+    },
+    onSuccess: () => {
+  queryClient.invalidateQueries({queryKey:["tasks"]})
+}
+  })
   return (
     <div className="single-item">
       <input
         type="checkbox"
         checked={item.isDone}
-        onChange={() => console.log("edit task")}
+        onChange={() => editTask({ taskId: item.id, isDone: !item.isDone })}
       />
       <p
         style={{
@@ -21,7 +40,8 @@ const SingleItem = ({ item }) => {
       <button
         className="btn remove-btn"
         type="button"
-        onClick={() => console.log("delete task")}
+        disabled={isLoading}
+        onClick={() => deleteTask(item.id)}
       >
         delete
       </button>
