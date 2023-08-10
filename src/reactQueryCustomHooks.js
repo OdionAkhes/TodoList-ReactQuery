@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import customFetch from "./utils";
 import { toast } from "react-toastify";
 export const useFetchTasks = () => {
-  const { isLoading, data, isError, error } = useQuery({
+  const { isLoading, data, isError } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
       const { data } = await customFetch.get("/");
