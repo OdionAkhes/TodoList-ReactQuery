@@ -1,51 +1,24 @@
 /** @format */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import customFetch from "./utils";
+import SingleItem from "./SingleItem";
+import { useFetchTasks } from "./reactQueryCustomHooks";
 
-const SingleItem = ({ item }) => {
+const Items = () => {
+  const { isLoading, isError, data } = useFetchTasks();
 
- const queryClient = useQueryClient()
-  const { mutate: editTask } = useMutation({
-    mutateFn: ({ taskId, isDone }) => {
-      return customFetch.patch(`/${taskId}`, {isDone})
-    },
-    onSuccess: () => {
-  queryClient.invalidateQueries({queryKey:["tasks"]})
-}
-  })
-  const { mutate: deleteTask ,isLoading} = useMutation({
-    mutateFn: ( taskId ) => {
-      return customFetch.delete(`/${taskId}`,)
-    },
-    onSuccess: () => {
-  queryClient.invalidateQueries({queryKey:["tasks"]})
-}
-  })
+  if (isLoading) {
+    return <p style={{ marginTop: "1rem " }}>Loading...</p>;
+  }
+  if (isError) {
+    return <p style={{ marginTop: "1rem " }}>There was an error...</p>;
+  }
+
   return (
-    <div className="single-item">
-      <input
-        type="checkbox"
-        checked={item.isDone}
-        onChange={() => editTask({ taskId: item.id, isDone: !item.isDone })}
-      />
-      <p
-        style={{
-          textTransform: "capitalize",
-          textDecoration: item.isDone && "line-through",
-        }}
-      >
-        {item.title}
-      </p>
-      <button
-        className="btn remove-btn"
-        type="button"
-        disabled={isLoading}
-        onClick={() => deleteTask(item.id)}
-      >
-        delete
-      </button>
+    <div className="items">
+      {data.taskList.map((item) => {
+        return <SingleItem key={item.id} item={item} />;
+      })}
     </div>
   );
 };
-export default SingleItem;
+export default Items;
